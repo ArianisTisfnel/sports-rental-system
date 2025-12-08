@@ -22,7 +22,7 @@ public class Order {
      * @param status 訂單狀態
      * @param auditReason 審計理由 (若無審計則為 null)
      */
-    public Order(String orderID, Member member, HashSet<RentalItem> itemsSet, String status, String auditReason) {
+    public Order(String orderID, Member member, Set<RentalItem> itemsSet, String status, String auditReason) {
         this.orderID = orderID;
         this.member = member;
         this.orderTime = LocalDateTime.now();

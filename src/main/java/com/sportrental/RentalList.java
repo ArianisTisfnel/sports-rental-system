@@ -113,7 +113,7 @@ public class RentalList {
      * 取得租借清單中的品項集合。
      * @return 品項集合的副本
      */
-    public HashSet<RentalItem> getItemsSet() {
+    public Set<RentalItem> getItemsSet() {
         return new HashSet<>(itemsSet); // 回傳副本以保護內部狀態
     }
 
