@@ -64,7 +64,7 @@ public class RentalController {
             return;
         }
 
-        if (!equipment.checkAvailability(quantity)) {
+        if (Boolean.FALSE.equals(equipment.checkAvailability(quantity))) {
             rentalPage.displayStatusMessage("錯誤：器材 '" + equipment.getName() + "' (ID: " + equipmentID + ") 庫存不足，目前可用數量: " + equipment.getAvailableStock());
             return;
         }
@@ -120,14 +120,14 @@ public class RentalController {
         // 庫存前置檢查
         for (RentalItem item : currentList.getItems()) {
             Equipment equipment = item.getEquipment();
-            if (!equipment.checkAvailability(item.getQuantity())) {
+            if (Boolean.FALSE.equals(equipment.checkAvailability(item.getQuantity()))) {
                 rentalPage.displayStatusMessage("錯誤：器材 '" + equipment.getName() + "' (ID: " + equipment.getEquipmentID() + ") 庫存不足，無法結帳。目前可用數量: " + equipment.getAvailableStock());
                 return; // 立即中止
             }
         }
 
         // 審計判斷
-        if (currentList.checkAuditRequirement()) {
+        if (Boolean.TRUE.equals(currentList.checkAuditRequirement())) {
             String auditReason = rentalPage.promptForAuditReason();
             confirmOrder(auditReason);
         } else {

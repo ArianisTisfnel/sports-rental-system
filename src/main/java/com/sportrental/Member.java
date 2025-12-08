@@ -26,7 +26,7 @@ public class Member {
         this.rentalHistory.add(completedOrder);
     }
 
-    public ArrayList<Order> getRentalHistory() {
+    public List<Order> getRentalHistory() {
         return rentalHistory;
     }
 }
