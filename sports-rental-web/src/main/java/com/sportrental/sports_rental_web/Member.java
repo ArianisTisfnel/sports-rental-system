@@ -1,4 +1,4 @@
-package com.sportrental;
+package com.sportrental.sports_rental_web;
 
 import java.util.ArrayList;
 import java.util.List;

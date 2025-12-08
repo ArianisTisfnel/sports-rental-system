@@ -1,4 +1,4 @@
-package com.sportrental;
+package com.sportrental.sports_rental_web;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -7,21 +7,18 @@ import java.util.Map;
 import java.util.UUID;
 
 public class RentalController {
-    
+
     private Map<String, Equipment> equipmentInventory = new HashMap<>();
     private RentalList currentList = new RentalList();
-    
-    // 新增：模擬一個當前登入的會員 (為了符合 UML 的 Member 關聯)
-    private Member currentMember; 
+    private Member currentMember;
 
     public RentalController() {
-        // 初始化器材
+        // 初始化：籃球20顆, 羽球拍50支(門檻10)
         equipmentInventory.put("E001", new Equipment("E001", "籃球", 20, 5));
         equipmentInventory.put("E002", new Equipment("E002", "排球", 15, 5));
-        equipmentInventory.put("E003", new Equipment("E003", "羽球拍", 50, 10)); 
-        equipmentInventory.put("E004", new Equipment("E004", "桌球拍", 30, 8)); 
-        
-        // 初始化一個假會員 (User)
+        equipmentInventory.put("E003", new Equipment("E003", "羽球拍", 50, 10));
+        equipmentInventory.put("E004", new Equipment("E004", "桌球拍", 30, 8));
+
         this.currentMember = new Member("M001", "王小明");
     }
 
@@ -32,42 +29,55 @@ public class RentalController {
     public List<RentalItem> getCurrentList() {
         return currentList.getItemsList();
     }
-    
-    // 取得當前會員 (讓 UI 顯示名字用)
-    public Member getCurrentMember() {
-        return currentMember;
-    }
 
+    // 加入購物車 (邏輯不變)
     public String addToCart(String id, int qty) {
         Equipment eq = equipmentInventory.get(id);
-        if (eq == null) return "找不到器材";
-        if (qty > eq.getAvailableStock()) return "庫存不足！目前僅剩 " + eq.getAvailableStock();
-        
+        if (eq == null) return "錯誤：找不到器材";
+        if (qty <= 0) return "錯誤：數量必須大於 0";
+        // 注意：這裡先做簡單檢查，嚴謹的話要檢查 (現有+新增) 是否超過庫存
+        if (qty > eq.getAvailableStock()) {
+            return "錯誤：庫存不足！" + eq.getName() + " 目前僅剩 " + eq.getAvailableStock() + " 個。";
+        }
         currentList.addItem(eq, qty);
-        return "加入成功";
+        return "成功：已加入 " + qty + " 個 " + eq.getName();
     }
 
+    // 新增：更新購物車數量 (S-2)
+    public String updateCartItem(String id, int newQty) {
+        if (newQty <= 0) return "錯誤：數量必須大於 0";
+        Equipment eq = equipmentInventory.get(id);
+
+        // 檢查庫存 (修改後的數量不能超過庫存)
+        if (newQty > eq.getAvailableStock()) {
+            return "錯誤：庫存不足！無法修改為 " + newQty + " 個。";
+        }
+
+        currentList.updateQuantity(id, newQty);
+        return "已更新數量";
+    }
+
+    // 新增：移除購物車項目 (S-3)
+    public String removeCartItem(String id) {
+        currentList.removeItem(id);
+        return "已移除器材";
+    }
+
+    // 檢查是否需要審核
     public String checkAuditRequirement() {
         if (currentList.getItemsList().isEmpty()) return "EMPTY";
         if (currentList.needsAudit()) return "NEED_AUDIT";
         return "OK";
     }
 
-    // ⭐️ 更新：結帳時建立 Order 並存入 Member
+    // 結帳並存檔
     public void confirmOrder(String auditReason) {
-        // 1. 扣除庫存 (UML Source: 207)
         for (RentalItem item : currentList.getItemsList()) {
             item.getEquipment().decreaseStock(item.getQuantity());
         }
-        
-        // 2. 建立訂單 (UML Source: 244)
-        String newOrderId = UUID.randomUUID().toString().substring(0, 8); // 隨機產生 ID
+        String newOrderId = UUID.randomUUID().toString().substring(0, 8);
         Order newOrder = new Order(newOrderId, currentMember.getMemberID(), currentList.getItemsList(), auditReason);
-        
-        // 3. 存入會員歷史紀錄 (UML Source: 189, 267)
         currentMember.addRentalHistory(newOrder);
-
-        // 4. 清空購物車
         currentList.clear();
     }
 }

@@ -1,4 +1,4 @@
-package com.sportrental;
+package com.sportrental.sports_rental_web;
 
 public class Equipment {
     private String equipmentID;
