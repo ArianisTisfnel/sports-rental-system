@@ -1,59 +1,42 @@
 package com.sportrental;
 
-import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
-import java.util.Scanner; // For simulation input
 
+/**
+ * 管理租借流程的核心控制器。
+ */
 public class RentalController {
     public Map<String, Equipment> equipmentInventory;
     public Member currentMember;
     public RentalList currentList;
     public RentalPage rentalPage;
-    public Random random;
 
-    /**
-     * 建構子：初始化 RentalController 物件。
-     * 內部會呼叫 initSystem() 進行系統啟動。
-     */
     public RentalController() {
-        this.random = new Random();
         initSystem();
     }
 
     /**
-     * 負責系統啟動與初始化：
-     * 1. 載入靜態器材庫存資料到 equipmentInventory。
-     * 2. 建立一個預設 Member 實例 (currentMember)。
-     * 3. 建立 RentalPage 實例。
-     * 4. 建立 RentalList 實例。
+     * 載入靜態器材庫存並建立預設會員、購物車與頁面。
      */
     public void initSystem() {
         equipmentInventory = new HashMap<>();
-        // 載入靜態器材庫存資料
-        equipmentInventory.put("E001", new Equipment("E001", "籃球", 20, 10));
-        equipmentInventory.put("E002", new Equipment("E002", "排球", 15, 5)); // 審計門檻較低
-        equipmentInventory.put("E003", new Equipment("E003", "羽毛球拍", 30, 15));
-        equipmentInventory.put("E004", new Equipment("E004", "桌球", 10, 5));
-        equipmentInventory.put("E005", new Equipment("E005", "網球拍", 25, 10));
+        equipmentInventory.put("E001", new Equipment("E001", "籃球", 30, 10));
+        equipmentInventory.put("E002", new Equipment("E002", "排球", 25, 5));
+        equipmentInventory.put("E003", new Equipment("E003", "羽毛球拍", 40, 15));
+        equipmentInventory.put("E004", new Equipment("E004", "桌球", 10, 8));
 
-        // 建立一個預設 Member 實例
-        currentMember = new Member("M001", "測試會員");
-
-        // 建立 RentalList 實例
+        currentMember = new Member("M001", "DefaultMember");
         currentList = new RentalList();
-
-        // 建立 RentalPage 實例
         rentalPage = new RentalPage();
-
-        rentalPage.displayStatusMessage("系統初始化完成，歡迎 " + currentMember.getAccountName() + "！");
+        rentalPage.displayStatusMessage("系統初始化完成。");
     }
 
     /**
      * 處理新增租借品項的請求。
-     * 檢查器材在庫存中的狀態，確認可租借後呼叫 RentalList 的 addItem() 往購物車內新增租借品項。
+     * [修正版] 增加累加數量檢查，防止分次加入導致總數超過庫存。
      * @param equipmentID 器材ID
      * @param quantity 租借數量
      */
@@ -64,31 +47,46 @@ public class RentalController {
             return;
         }
 
-        if (!equipment.checkAvailability(quantity)) {
-            rentalPage.displayStatusMessage("錯誤：器材 '" + equipment.getName() + "' (ID: " + equipmentID + ") 庫存不足，目前可用數量: " + equipment.getAvailableStock());
+        // Step 1: 先計算購物車內已經有多少個這個器材
+        int currentInCart = 0;
+        for (RentalItem item : currentList.getItems()) {
+            if (item.getEquipment().getEquipmentID().equals(equipmentID)) {
+                currentInCart = item.getQuantity();
+                break;
+            }
+        }
+
+        // Step 2: 檢查 (購物車已有 + 這次想加的) 是否超過總可用庫存
+        // equipment.getAvailableStock() 是指總共剩多少，不是指還能再借多少
+        if (quantity + currentInCart > equipment.getAvailableStock()) {
+            rentalPage.displayStatusMessage(
+                "錯誤：庫存不足！器材 '" + equipment.getName() +
+                "' 目前可用: " + equipment.getAvailableStock() +
+                ", 您的購物車已加入: " + currentInCart +
+                ", 無法再加入: " + quantity + " 個。"
+            );
             return;
         }
 
+        // Step 3: 通過檢查，執行加入
         RentalItem newItem = new RentalItem(equipment, quantity);
         currentList.addItem(newItem);
-        rentalPage.displayStatusMessage("已將 '" + equipment.getName() + "' (數量: " + quantity + ") 加入租借清單。");
+
+        rentalPage.displayStatusMessage("成功加入 '" + equipment.getName() + "' " + quantity + " 個。");
         rentalPage.displayCurrentList(currentList);
     }
 
     /**
-     * 從購物車中移除指定器材 ID 的品項。
-     * @param equipmentID 要移除的器材 ID
+     * 從購物車移除指定器材。
      */
     public void removeItemFromCart(String equipmentID) {
         currentList.removeItem(equipmentID);
-        rentalPage.displayStatusMessage("已從租借清單中移除器材 ID: " + equipmentID + "。");
+        rentalPage.displayStatusMessage("已從購物車移除器材 ID: " + equipmentID);
         rentalPage.displayCurrentList(currentList);
     }
 
     /**
-     * 更新購物車中指定器材 ID 的品項數量。
-     * @param equipmentID 要更新的器材 ID
-     * @param newQuantity 新的數量
+     * 更新購物車內器材的數量。
      */
     public void updateItemQuantity(String equipmentID, Integer newQuantity) {
         Equipment equipment = equipmentInventory.get(equipmentID);
@@ -96,24 +94,21 @@ public class RentalController {
             rentalPage.displayStatusMessage("錯誤：找不到器材 ID: " + equipmentID);
             return;
         }
-
         if (newQuantity > equipment.getAvailableStock()) {
-            rentalPage.displayStatusMessage("錯誤：器材 '" + equipment.getName() + "' (ID: " + equipmentID + ") 庫存不足，無法更新為 " + newQuantity + " 個。目前可用數量: " + equipment.getAvailableStock());
+            rentalPage.displayStatusMessage("錯誤：數量超過可用庫存，更新失敗。");
             return;
         }
-
         currentList.updateItem(equipmentID, newQuantity);
-        rentalPage.displayStatusMessage("已更新器材 ID: " + equipmentID + " 的數量為 " + newQuantity + "。");
+        rentalPage.displayStatusMessage("已更新器材 " + equipmentID + " 的數量為 " + newQuantity);
         rentalPage.displayCurrentList(currentList);
     }
 
     /**
-     * 負責啟動結帳流程。
-     * 進行庫存前置檢查，並在訂單完成後決定是否送出審計理由。
+     * 結帳流程：庫存檢查後依需求進入審計或直接成立訂單。
      */
     public void processCheckout() {
         if (currentList.getItems().isEmpty()) {
-            rentalPage.displayStatusMessage("錯誤：您的租借清單是空的，無法結帳。");
+            rentalPage.displayStatusMessage("購物車為空，無法結帳。");
             return;
         }
 
@@ -121,8 +116,8 @@ public class RentalController {
         for (RentalItem item : currentList.getItems()) {
             Equipment equipment = item.getEquipment();
             if (!equipment.checkAvailability(item.getQuantity())) {
-                rentalPage.displayStatusMessage("錯誤：器材 '" + equipment.getName() + "' (ID: " + equipment.getEquipmentID() + ") 庫存不足，無法結帳。目前可用數量: " + equipment.getAvailableStock());
-                return; // 立即中止
+                rentalPage.displayStatusMessage("器材 " + equipment.getEquipmentID() + " 庫存不足，結帳已取消。");
+                return;
             }
         }
 
@@ -136,52 +131,38 @@ public class RentalController {
     }
 
     /**
-     * 如果沒有審計理由，直接建構一個沒有 auditReason 的 Order (訂單成立)，並通知 Equipment 進行庫存扣除。
+     * 無需審計的訂單成立流程。
      */
     public void confirmOrder() {
-        // 建立訂單，狀態為 Approved
-        Order newOrder = new Order(UUID.randomUUID().toString(), currentMember, currentList.getItemsSet(), "Approved", null);
-
-        // 庫存操作：扣除庫存
-        for (RentalItem item : newOrder.getLineItems()) {
+        Order order = new Order(UUID.randomUUID().toString(), currentMember, currentList.getItemsSet(), "Approved", null);
+        for (RentalItem item : order.getLineItems()) {
             item.getEquipment().decreaseStock(item.getQuantity());
         }
-
-        // 將完成的 Order 加入 currentMember 的 rentalHistory
-        currentMember.addRentalHistory(newOrder);
-        rentalPage.displayStatusMessage("訂單 (ID: " + newOrder.getOrderID() + ") 已成功核准，無需審計。");
-        currentList.clearList(); // 清空購物車
+        currentMember.addRentalHistory(order);
+        currentList.clearList();
+        rentalPage.displayStatusMessage("訂單成立並已扣除庫存。狀態: Approved");
         rentalPage.displayCurrentList(currentList);
     }
 
     /**
-     * 如果有審計理由，亂數生成管理員的允許情形（50%/50%-True/False），
-     * 並依據結果決定是否建構一個包含 itemSet 跟 auditReason 的 Order（訂單成立），並通知 Equipment 進行庫存。
-     * @param auditReason 審計理由
+     * 需審計的訂單成立流程。
      */
     public void confirmOrder(String auditReason) {
-        // 模擬管理員審核：50% 允許 / 50% 拒絕
-        boolean approved = random.nextBoolean(); // true 或 false
+        boolean approved = new Random().nextBoolean();
+        String status = approved ? "Approved" : "Rejected";
+        Order order = new Order(UUID.randomUUID().toString(), currentMember, currentList.getItemsSet(), status, auditReason);
 
-        String orderStatus;
         if (approved) {
-            orderStatus = "Approved";
-            // 建立訂單，狀態為 Approved
-            Order newOrder = new Order(UUID.randomUUID().toString(), currentMember, currentList.getItemsSet(), orderStatus, auditReason);
-            // 庫存操作：扣除庫存
-            for (RentalItem item : newOrder.getLineItems()) {
+            for (RentalItem item : order.getLineItems()) {
                 item.getEquipment().decreaseStock(item.getQuantity());
             }
-            currentMember.addRentalHistory(newOrder);
-            rentalPage.displayStatusMessage("訂單 (ID: " + newOrder.getOrderID() + ") 已通過審計並核准。");
-            currentList.clearList(); // 清空購物車
+            rentalPage.displayStatusMessage("審核通過，訂單成立並已扣庫存。");
         } else {
-            orderStatus = "Rejected";
-            // 建立訂單，狀態為 Rejected (庫存不扣除)
-            Order newOrder = new Order(UUID.randomUUID().toString(), currentMember, currentList.getItemsSet(), orderStatus, auditReason);
-            currentMember.addRentalHistory(newOrder);
-            rentalPage.displayStatusMessage("訂單 (ID: " + newOrder.getOrderID() + ") 審計未通過，已拒絕。庫存未扣除。");
+            rentalPage.displayStatusMessage("審核未通過，訂單被拒絕，庫存未扣除。");
         }
+
+        currentMember.addRentalHistory(order);
+        currentList.clearList();
         rentalPage.displayCurrentList(currentList);
     }
 }
