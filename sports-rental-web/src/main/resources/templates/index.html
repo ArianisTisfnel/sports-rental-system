@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>體育器材租借系統</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #f8f9fa; padding: 20px; font-family: 'Microsoft JhengHei', sans-serif; }
+        .card { margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1 class="text-center mb-4">🏀 校園體育器材租借系統</h1>
+
+    <div th:if="${message}" class="alert alert-info" role="alert" th:text="${message}"></div>
+
+    <div class="row">
+        <div class="col-md-7">
+            <div class="card">
+                <div class="card-header bg-primary text-white">器材目錄 (Catalogue)</div>
+                <div class="card-body">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>名稱</th>
+                                <th>庫存</th>
+                                <th>門檻</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="item : ${equipments}">
+                                <td th:text="${item.equipmentID}">E001</td>
+                                <td th:text="${item.name}">籃球</td>
+                                <td th:text="${item.availableStock}">10</td>
+                                <td th:text="${item.auditThreshold}">5</td>
+                                <td>
+                                    <form action="/add" method="post" class="d-flex">
+                                        <input type="hidden" name="id" th:value="${item.equipmentID}">
+                                        <input type="number" name="quantity" value="1" min="1" class="form-control form-control-sm me-2" style="width: 70px;">
+                                        <button type="submit" class="btn btn-sm btn-outline-success">加入</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-5">
+            <div class="card">
+                <div class="card-header bg-success text-white">租借清單 (Cart)</div>
+                <div class="card-body">
+                    <ul class="list-group mb-3">
+                        <li class="list-group-item d-flex justify-content-between lh-sm" th:each="cartItem : ${cartItems}">
+                            <div>
+                                <h6 class="my-0" th:text="${cartItem.equipment.name}">Product name</h6>
+                                <small class="text-muted" th:text="'ID: ' + ${cartItem.equipment.equipmentID}">ID</small>
+                            </div>
+                            <span class="text-muted" th:text="'x' + ${cartItem.quantity}">x1</span>
+                        </li>
+                        <li class="list-group-item text-center text-muted" th:if="${#lists.isEmpty(cartItems)}">
+                            清單是空的
+                        </li>
+                    </ul>
+
+                    <form action="/checkout" method="post">
+                        <div th:if="${showAuditModal}" class="alert alert-warning">
+                            <strong th:text="${auditMsg}"></strong>
+                            <div class="mb-2 mt-2">
+                                <label>請輸入申請理由 (Reason):</label>
+                                <textarea name="reason" class="form-control" rows="2" required></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-warning w-100">確認並送出審核</button>
+                        </div>
+
+                        <button th:unless="${showAuditModal}" type="submit" class="btn btn-primary w-100">確認租借 (Checkout)</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
