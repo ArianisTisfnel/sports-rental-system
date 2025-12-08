@@ -36,7 +36,7 @@ public class Equipment {
      * @param quantity 要減少的數量
      */
     public void decreaseStock(Integer quantity) {
-        if (checkAvailability(quantity)) {
+        if (Boolean.TRUE.equals(this.checkAvailability(quantity))) {
             this.availableStock -= quantity;
         } else {
             System.err.println("錯誤：器材 " + equipmentID + " 庫存不足，無法減少 " + quantity + " 個。");
