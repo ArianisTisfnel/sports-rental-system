@@ -84,7 +84,7 @@ public class RentalList {
      * 如果任何一個品項的數量大於其對應器材的審計門檻，則回傳 true。
      * @return 如果需要審計則回傳 true，否則回傳 false
      */
-    public Boolean checkAuditRequirement() {
+    public Boolean isAuditRequired() {
         for (RentalItem item : itemsSet) {
             if (item.getQuantity() > item.getEquipment().getAuditThreshold()) {
                 return true;
