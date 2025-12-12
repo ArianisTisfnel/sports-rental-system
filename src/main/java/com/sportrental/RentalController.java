@@ -127,7 +127,7 @@ public class RentalController {
         }
 
         // 審計判斷
-        if (Boolean.TRUE.equals(currentList.checkAuditRequirement())) {
+        if (Boolean.TRUE.equals(currentList.isAuditRequired())) {
             String auditReason = rentalPage.promptForAuditReason();
             confirmOrder(auditReason);
         } else {

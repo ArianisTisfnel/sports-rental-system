@@ -17,6 +17,8 @@
 
 
 方法：
++ getMemberID():String
++ getAccountName():String
 + addRentalHistory(completedOrders:Arraylist<Order>) : void
 + getRentalHistory():Arraylist<Order>
 
@@ -100,11 +102,17 @@ Equipment(1)<-"Refers to"-(1)RentalItem
 - itemsSet: HashSet<RentalItem>
 
 方法：
-+ addItem(item: RentalItem) : void
-+ removeItem(equipmentID: String) : void
-+ updateItem(equipmentID: String, quantity: Integer) : void
-+ getItems() : List<RentalItem>
-+ checkAuditRequirement() : Boolean
++ addItem(item: RentalItem): void
++ removeItem(equipmentID: String): void
++ updateItem(equipmentID: String, quantity: Integer): void
++ getItems(): List<RentalItem>
+// 提供有序的品項列表，方便RentalPage顯示和RentalController在結帳前進行庫存遍歷檢查。
++ getItemsSet() Set<RentalItem>
+// 提供品項的唯一性視圖，用於Order建立時確保品項不重複，並保護RentalList內部狀態。
++ isAuditRequired() : boolean
++ clearList():void
++ getListID():String
++ getCreationDate(): LocalDateTime
 
 圖表關係：
 RentalList(1..*)<-"request"-(1)RentalController
@@ -119,9 +127,13 @@ RentalList(1..*)<-"isPartOf"-(1)RentalItem
 - equipment: Equipment
 - quantity: Integer
 方法：
++ getEquipment(): Equipment
++ getQuantity(): Integer
++ setQuantity(): void
 + equals(Object obj): Boolean
 + hashCode(): int
 // `equals()` 和 `hashCode()` 必須僅使用 `equipmentID` 屬性。這是為了確保在集合 (HashSet) 中，同一個器材 ID 僅能存在一個實例。
+// 這兩個方法是被隱性調用的，只要在類別中有覆寫這兩個方法，就能確保其唯一性。
 
 圖表關係：
 RentalItem(1..*)-"isPartOf"->(1)RentalList
@@ -132,11 +144,6 @@ RentalItem(1..*)-"isPartOf"->(1)Order
 ## 類別：RentalController
 
 屬性：
-+ initSystem(): void
-// 負責系統啟動：
-// 1. 載入靜態器材庫存資料到 equipmentInventory。
-// 2. 建立一個預設 Member 實例 (currentMember)。
-// 3. 建立 RentalPage 實例。
 - equipmentInventory: Map<String, Equipment>
 // 儲存所有器材物件的目錄。以靜態資料儲存，代替資料庫（我們沒有要實作資料庫層）。
 // Map 的 Key 應為 Equipment.equipmentID (String)。
@@ -147,6 +154,12 @@ RentalItem(1..*)-"isPartOf"->(1)Order
 
 
 方法：
++ initSystem(): void
+// 負責系統啟動：
+// 1. 載入靜態器材庫存資料到 equipmentInventory。
+// 2. 建立一個預設 Member 實例 (currentMember)。
+// 3. 建立 RentalPage 實例。
+
 + addItemRequest(equipmentID: String, quantity: Integer): void
  // 檢查器材於 equipmentInventory 中的狀態，在確認可租借後呼叫 RentalList 的 addItem() 往購物車內新增租借品項。
 
@@ -169,14 +182,3 @@ RentalController(1)-"isAssociatedWith"->(1)RentalPage
 RentalController(1)<-"isAssociatedWith"-(1)RentalPage
 RentalController(1)<-"manage"-(1..*)Equipment
 RentalController(1)-"request"->(1..*)RentalList
-
----
-
-
-
-# 租借系統實作補充文件
-
-**文件說明**
-本文件旨在提供類別圖文件（主文件）中未詳述的業務規則、流程邏輯與 Agent 實作指引，以確保 Agent 能順利完成租借系統的核心 use-case 實作。
-
----
