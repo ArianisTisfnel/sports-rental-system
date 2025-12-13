@@ -86,7 +86,7 @@ public class RentalController {
         }
 
         // 這裡會呼叫 RentalPage (Web)，它會回傳 null 來中斷流程並顯示 Modal
-        if (Boolean.TRUE.equals(currentList.checkAuditRequirement())) {
+        if (Boolean.TRUE.equals(currentList.isAuditRequired())) {
             String auditReason = rentalPage.promptForAuditReason();
             // 如果 Web 版回傳 null，代表需要等待使用者輸入，先結束
             if (auditReason == null) return;
