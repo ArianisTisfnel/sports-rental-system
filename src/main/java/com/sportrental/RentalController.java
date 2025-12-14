@@ -132,12 +132,19 @@ public class RentalController {
 
     /**
      * 無需審計的訂單成立流程。
+     * @throws RuntimeException 如果庫存扣除失敗
      */
     public void confirmOrder() {
         Order order = new Order(UUID.randomUUID().toString(), currentMember, currentList.getItemsSet(), "Approved", null);
+
+        // 11a. 嘗試扣除庫存，檢查是否成功
         for (RentalItem item : order.getLineItems()) {
-            item.getEquipment().decreaseStock(item.getQuantity());
+            if (!item.getEquipment().decreaseStock(item.getQuantity())) {
+                // 11a. 庫存扣除失敗，拋出異常
+                throw new RuntimeException("哎呀⊙A⊙！ " + item.getEquipment().getName() + " 剛好被借走了，請返回清單修改");
+            }
         }
+
         currentMember.addRentalHistory(order);
         currentList.clearList();
         rentalPage.displayStatusMessage("訂單成立並已扣除庫存。狀態: Approved");
@@ -145,7 +152,8 @@ public class RentalController {
     }
 
     /**
-     * 需審計的訂單成立流程。
+     * 需審計的訂單成立流程（用於管理員審核後）。
+     * 注意：此方法用於管理員審核後的處理，GUI 應使用 confirmOrderPendingAudit。
      */
     public void confirmOrder(String auditReason) {
         boolean approved = new Random().nextBoolean();
@@ -163,6 +171,19 @@ public class RentalController {
 
         currentMember.addRentalHistory(order);
         currentList.clearList();
+        rentalPage.displayCurrentList(currentList);
+    }
+
+    /**
+     * 10a. 建立待審核訂單（用於 GUI 流程）。
+     * 訂單狀態設為 PendingAudit，不扣除庫存，等待管理員審核。
+     * @param auditReason 申請理由
+     */
+    public void confirmOrderPendingAudit(String auditReason) {
+        Order order = new Order(UUID.randomUUID().toString(), currentMember, currentList.getItemsSet(), "PendingAudit", auditReason);
+        currentMember.addRentalHistory(order);
+        currentList.clearList();
+        rentalPage.displayStatusMessage("申請已送出，等待管理員審核。");
         rentalPage.displayCurrentList(currentList);
     }
 }

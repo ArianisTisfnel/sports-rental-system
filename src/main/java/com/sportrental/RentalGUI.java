@@ -36,8 +36,7 @@ public class RentalGUI extends JFrame {
             controller.equipmentInventory.get("E002")
         ));
         categoryMap.put("拍類運動", Arrays.asList(
-            controller.equipmentInventory.get("E003"),
-            controller.equipmentInventory.get("E005")
+            controller.equipmentInventory.get("E003")
         ));
         categoryMap.put("桌上運動", Arrays.asList(
             controller.equipmentInventory.get("E004")
@@ -305,9 +304,16 @@ public class RentalGUI extends JFrame {
             for (RentalItem item : controller.currentList.getItems()) {
                 JPanel itemPanel = createCartItemPanel(item);
 
+                // 9a. 檢查庫存不足
                 if (!item.getEquipment().checkAvailability(item.getQuantity())) {
                     itemPanel.setBackground(Color.PINK);
                     hasStockIssue = true;
+                    // 為每個庫存不足的器材顯示錯誤訊息
+                    JLabel errorLabel = new JLabel(
+                        "<html><font color='red'>哎呀！ " + item.getEquipment().getName() +
+                        " 庫存不足><，請修改數量或將其刪除~</font></html>");
+                    errorLabel.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
+                    cartPanel.add(errorLabel);
                 }
 
                 cartPanel.add(itemPanel);
@@ -315,10 +321,6 @@ public class RentalGUI extends JFrame {
 
             if (hasStockIssue) {
                 confirmButton.setEnabled(false);
-                JLabel warningLabel = new JLabel(
-                    "<html><font color='red'>哎呀！部分器材庫存不足><，請修改數量或將其刪除~</font></html>",
-                    SwingConstants.CENTER);
-                cartPanel.add(warningLabel);
             }
         }
 
@@ -339,6 +341,19 @@ public class RentalGUI extends JFrame {
         JLabel infoLabel = new JLabel(infoText);
         infoLabel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
+        // 10a. 檢查是否超過門檻，顯示紅色警示文字
+        if (item.getQuantity() > equipment.getAuditThreshold()) {
+            JLabel auditWarningLabel = new JLabel(
+                "<html><font color='red'>⚠ 超過門檻 (門檻: " + equipment.getAuditThreshold() + ")</font></html>");
+            auditWarningLabel.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 0));
+            JPanel infoPanel = new JPanel(new BorderLayout());
+            infoPanel.add(infoLabel, BorderLayout.CENTER);
+            infoPanel.add(auditWarningLabel, BorderLayout.EAST);
+            itemPanel.add(infoPanel, BorderLayout.CENTER);
+        } else {
+            itemPanel.add(infoLabel, BorderLayout.CENTER);
+        }
+
         JPanel buttonPanel = new JPanel();
 
         JButton editButton = new JButton("修改數量");
@@ -350,7 +365,6 @@ public class RentalGUI extends JFrame {
         buttonPanel.add(editButton);
         buttonPanel.add(deleteButton);
 
-        itemPanel.add(infoLabel, BorderLayout.CENTER);
         itemPanel.add(buttonPanel, BorderLayout.EAST);
 
         return itemPanel;
@@ -390,6 +404,7 @@ public class RentalGUI extends JFrame {
     }
 
     private void confirmRental() {
+        // 10a. 檢查是否有超過門檻的器材
         boolean needsAudit = false;
         StringBuilder auditItems = new StringBuilder();
 
@@ -404,27 +419,51 @@ public class RentalGUI extends JFrame {
         }
 
         if (needsAudit) {
+            // 10a. 顯示對話框要求填寫申請理由
             String message = "租借數量已超過一般門檻，若要繼續租借，請填寫申請理由供管理員審核。\n\n" +
                            "超過門檻的器材：\n" + auditItems.toString();
 
-            String reason = JOptionPane.showInputDialog(this, message, "需要審核");
+            String reason = null;
+            while (reason == null || reason.trim().isEmpty()) {
+                reason = JOptionPane.showInputDialog(this, message, "需要審核");
 
-            if (reason == null || reason.trim().isEmpty()) {
-                return;
+                // 若會員取消或不填寫，返回清單畫面
+                if (reason == null) {
+                    return;
+                }
+
+                if (reason.trim().isEmpty()) {
+                    JOptionPane.showMessageDialog(this,
+                        "申請理由為必填項目，請填寫後再送出。",
+                        "提示", JOptionPane.WARNING_MESSAGE);
+                }
             }
 
-            controller.confirmOrder(reason);
+            // 10a. 建立訂單，狀態設為 PendingAudit
+            controller.confirmOrderPendingAudit(reason);
             JOptionPane.showMessageDialog(this,
                 "您的申請已送出！管理員將根據您填寫的理由進行審核，請靜待通知>w<",
                 "申請已送出", JOptionPane.INFORMATION_MESSAGE);
-        } else {
-            controller.confirmOrder();
-            JOptionPane.showMessageDialog(this, "租借成功！", "成功",
-                JOptionPane.INFORMATION_MESSAGE);
-        }
 
-        updateCartButton();
-        cardLayout.show(mainPanel, CATEGORY_PANEL);
+            // 10a. 流程結束，不執行 Normal Flow 步驟 11, 12, 13
+            updateCartButton();
+            cardLayout.show(mainPanel, CATEGORY_PANEL);
+        } else {
+            // Normal Flow 步驟 11-13: 正常租借流程
+            try {
+                controller.confirmOrder();
+                JOptionPane.showMessageDialog(this, "租借成功！", "成功",
+                    JOptionPane.INFORMATION_MESSAGE);
+                updateCartButton();
+                cardLayout.show(mainPanel, CATEGORY_PANEL);
+            } catch (RuntimeException e) {
+                // 11a. 庫存扣除失敗，返回清單畫面
+                JOptionPane.showMessageDialog(this,
+                    e.getMessage(),
+                    "庫存變動", JOptionPane.ERROR_MESSAGE);
+                showRentalCart();
+            }
+        }
     }
 
     private void updateCartButton() {

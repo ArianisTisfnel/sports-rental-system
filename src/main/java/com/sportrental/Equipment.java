@@ -34,12 +34,15 @@ public class Equipment {
     /**
      * 減少器材的可用庫存。
      * @param quantity 要減少的數量
+     * @return 如果成功扣除庫存則回傳 true，否則回傳 false
      */
-    public void decreaseStock(Integer quantity) {
+    public Boolean decreaseStock(Integer quantity) {
         if (checkAvailability(quantity)) {
             this.availableStock -= quantity;
+            return true;
         } else {
             System.err.println("錯誤：器材 " + equipmentID + " 庫存不足，無法減少 " + quantity + " 個。");
+            return false;
         }
     }
 
