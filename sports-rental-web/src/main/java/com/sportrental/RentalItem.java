@@ -7,46 +7,19 @@ public class RentalItem {
     private final Equipment equipment;
     private Integer quantity;
 
-    /**
-     * 建構子：初始化 RentalItem 物件。
-     * @param equipment 租借的器材物件
-     * @param quantity 租借數量
-     */
     public RentalItem(Equipment equipment, Integer quantity) {
         this.equipment = equipment;
         this.quantity = quantity;
     }
 
-    /**
-     * 取得租借的器材物件。
-     * @return 器材物件
-     */
-    public Equipment getEquipment() {
-        return equipment;
-    }
+    public Equipment getEquipment() { return equipment; }
+
+    public Integer getQuantity() { return quantity; }
+
+    public void setQuantity(Integer quantity) { this.quantity = quantity; }
 
     /**
-     * 取得租借數量。
-     * @return 租借數量
-     */
-    public Integer getQuantity() {
-        return quantity;
-    }
-
-    /**
-     * 設定租借數量 (供 RentalList 內部調用)。
-     * @param quantity 新的租借數量
-     */
-    public void setQuantity(Integer quantity) {
-        this.quantity = quantity;
-    }
-
-    /**
-     * 判斷兩個 RentalItem 物件是否邏輯相等。
-     * 僅基於 equipment.getEquipmentID() 判斷。
-     * 因為 RentalList 使用 HashSet，此方法對於防止重複加入至關重要。
-     * @param obj 要比較的物件
-     * @return 如果邏輯相等則回傳 true，否則回傳 false
+     * 判斷兩個 RentalItem 物件是否邏輯相等。僅基於 equipment.getEquipmentID() 判斷。因為 RentalList 使用 HashSet，此方法對於防止重複加入至關重要。
      */
     @Override
     public boolean equals(Object obj) {
@@ -58,10 +31,7 @@ public class RentalItem {
     }
 
     /**
-     * 計算 RentalItem 物件的雜湊碼。
-     * 僅基於 equipment.getEquipmentID() 計算。
-     * 配合 equals 使用，確保 HashSet 運作正常。
-     * @return 雜湊碼
+     * 計算 RentalItem 物件的雜湊碼。僅基於 equipment.getEquipmentID() 計算。配合 equals 使用，確保 HashSet 運作正常。
      */
     @Override
     public int hashCode() {

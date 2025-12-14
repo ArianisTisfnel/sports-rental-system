@@ -28,7 +28,5 @@ public class Order {
     public String getStatus() { return status; }
     public String getAuditReason() { return auditReason; }
 
-    public List<RentalItem> getLineItems() {
-        return new ArrayList<>(itemsSet);
-    }
+    public List<RentalItem> getLineItems() { return new ArrayList<>(itemsSet);}
 }

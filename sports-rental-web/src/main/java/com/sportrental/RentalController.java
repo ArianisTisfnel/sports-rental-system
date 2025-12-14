@@ -107,7 +107,7 @@ public class RentalController {
     }
 
     public void confirmOrder(String auditReason) {
-        boolean approved = random.nextBoolean(); // 50% 機率
+        boolean approved = random.nextBoolean(); // 以亂數模擬管理員審核結果：50% 的機率通過；50% 的機率拒絕。
         String orderStatus = approved ? "Approved" : "Rejected";
 
         Order newOrder = new Order(UUID.randomUUID().toString(), currentMember, currentList.getItemsSet(), orderStatus, auditReason);

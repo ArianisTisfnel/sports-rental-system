@@ -16,12 +16,8 @@ public class Member {
     public String getMemberID() { return memberID; }
     public String getAccountName() { return accountName; }
     
-    // 新增歷史紀錄 (UML Source: 267)
-    public void addRentalHistory(Order order) {
-        rentalHistory.add(order);
-    }
+    // 新增歷史紀錄
+    public void addRentalHistory(Order order) { rentalHistory.add(order); }
     
-    public List<Order> getRentalHistory() {
-        return rentalHistory;
-    }
+    public List<Order> getRentalHistory() { return rentalHistory; }
 }

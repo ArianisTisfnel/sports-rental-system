@@ -3,7 +3,7 @@ package com.sportrental;
 public class Equipment {
     private String equipmentID;
     private String name;
-    private Integer totalStock;      // 新增
+    private Integer totalStock;
     private Integer availableStock;
     private Integer auditThreshold;
 
@@ -16,13 +16,13 @@ public class Equipment {
     }
 
     // 核心邏輯：檢查庫存
-    public Boolean checkAvailability(Integer requestedQuantity) {
+    public Boolean isQuantityAvailable(Integer requestedQuantity) {
         return availableStock >= requestedQuantity;
     }
 
     // 核心邏輯：扣除庫存
     public void decreaseStock(Integer quantity) {
-        if (Boolean.TRUE.equals(this.checkAvailability(quantity))) {
+        if (Boolean.TRUE.equals(this.isQuantityAvailable(quantity))) {
             this.availableStock -= quantity;
         } else {
             System.err.println("錯誤：器材 " + equipmentID + " 庫存不足，無法減少 " + quantity + " 個。");
