@@ -1,8 +1,8 @@
-# 🏀 體育器材租借系統 (Sports Equipment Rental System)
+# 體育器材租借系統 (Sports Equipment Rental System)
 
 一個基於Spring Boot開發的校園體育器材租借管理系統，提供直觀的Web界面來管理器材庫存和租借流程。
 
-## 📋 目錄
+## 目錄
 
 - [系統需求](#系統需求)
 - [安裝步驟](#安裝步驟)
@@ -10,7 +10,7 @@
 - [訪問應用程序](#訪問應用程序)
 - [故障排除](#故障排除)
 
-## 🔧 系統需求
+## 系統需求
 
 ### 必要環境
 - **Java**: JDK 17 或更高版本
@@ -41,7 +41,7 @@ java -version
 javac -version
 ```
 
-## 🚀 安裝步驟
+## 安裝步驟
 
 ### 步驟 1: 下載專案
 
@@ -76,7 +76,7 @@ cd sports-rental-web
 - `mvnw.cmd` (Windows) 或 `mvnw` (macOS/Linux) - Maven Wrapper
 - `src/` - 源代碼目錄
 
-## ▶️ 運行專案
+## 運行專案
 
 ### Windows 系統
 
@@ -106,7 +106,7 @@ mvnw.cmd spring-boot:run
 Started SportsRentalWebApplication in X.XXX seconds
 ```
 
-## 🌐 訪問應用程序
+## 訪問應用程序
 
 應用程序啟動後，打開瀏覽器並訪問以下網址：
 
@@ -119,7 +119,7 @@ http://localhost:8080
 - 購物車功能
 - 租借管理介面
 
-## 🔧 故障排除
+## 故障排除
 
 ### 常見問題與解決方法
 
