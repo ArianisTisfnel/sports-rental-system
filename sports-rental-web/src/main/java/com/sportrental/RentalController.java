@@ -45,7 +45,7 @@ public class RentalController {
             return;
         }
 
-        if (Boolean.FALSE.equals(equipment.checkAvailability(quantity))) {
+        if (Boolean.FALSE.equals(equipment.isQuantityAvailable(quantity))) {
             rentalPage.displayStatusMessage("錯誤：器材 '" + equipment.getName() + "' (ID: " + equipmentID + ") 庫存不足，目前可用: " + equipment.getAvailableStock());
             return;
         }
@@ -79,7 +79,7 @@ public class RentalController {
 
         for (RentalItem item : currentList.getItems()) {
             Equipment equipment = item.getEquipment();
-            if (Boolean.FALSE.equals(equipment.checkAvailability(item.getQuantity()))) {
+            if (Boolean.FALSE.equals(equipment.isQuantityAvailable(item.getQuantity()))) {
                 rentalPage.displayStatusMessage("錯誤：器材 '" + equipment.getName() + "' 庫存不足，無法結帳。");
                 return;
             }

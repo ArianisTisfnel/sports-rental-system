@@ -25,15 +25,15 @@ public class RentalList {
 
     public void addItem(RentalItem item) {
 
-        int itemID = item.getEquipment().getEquipmentID();
+        String itemID = item.getEquipment().getEquipmentID();
         boolean isFound = false;
         
         // 檢查清單中是否已存在此器材
         for (RentalItem existingItem : itemsSet) {
-            int existingItemID = existingItem.getEquipment().getEquipmentID();
+            String existingItemID = existingItem.getEquipment().getEquipmentID();
             
             // 如果存在，更新數量
-            if (existingItemID == itemID){
+            if (existingItemID.equals(itemID)) {
                 existingItem.setQuantity(existingItem.getQuantity() + item.getQuantity());
                 isFound = true;
                 break;
@@ -47,8 +47,7 @@ public class RentalList {
     }
 
     public void removeItem(String equipmentID) {
-        int itemID = item.getEquipment().getEquipmentID();
-        itemsSet.removeIf(item -> itemID.equals(equipmentID));
+        itemsSet.removeIf(item -> item.getEquipment().getEquipmentID().equals(equipmentID));
     }
 
     public void updateItem(String equipmentID, Integer newQuantity) {
@@ -61,10 +60,10 @@ public class RentalList {
 
         // 如果 newQuantity 大於 0，則更新該品項的數量
         for (RentalItem item : itemsSet) {
-            int itemID = item.getEquipment().getEquipmentID();
+            String itemID = item.getEquipment().getEquipmentID();
             
             // 找到對應的品項
-            if (itemID == equipmentID) {
+            if (itemID.equals(equipmentID)) {
                 item.setQuantity(newQuantity); // 更新數量
                 return;
             }
