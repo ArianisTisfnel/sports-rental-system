@@ -24,7 +24,7 @@ public class RentalPage {
     public void init() {
         // 1. 建立邏輯控制器
         this.rentalController = new RentalController();
-        // 2. ⭐️ 關鍵：把自己注入進去，這樣 RentalController 才能呼叫 displayStatusMessage
+        // 2. 關鍵：把自己注入進去，這樣 RentalController 才能呼叫 displayStatusMessage
         this.rentalController.rentalPage = this;
     }
 

@@ -15,12 +15,12 @@ public class Equipment {
         this.auditThreshold = auditThreshold;
     }
 
-    // ⭐️ 核心邏輯：檢查庫存
+    // 核心邏輯：檢查庫存
     public Boolean checkAvailability(Integer requestedQuantity) {
         return availableStock >= requestedQuantity;
     }
 
-    // ⭐️ 核心邏輯：扣除庫存
+    // 核心邏輯：扣除庫存
     public void decreaseStock(Integer quantity) {
         if (Boolean.TRUE.equals(this.checkAvailability(quantity))) {
             this.availableStock -= quantity;

@@ -7,7 +7,7 @@ import java.util.Random;
 import java.util.UUID;
 
 public class RentalController {
-    // ⚠️ 確保這些是 public，這樣 RentalPage 才能讀取資料顯示在網頁上
+    // 確保這些是 public，這樣 RentalPage 才能讀取資料顯示在網頁上
     public Map<String, Equipment> equipmentInventory;
     public Member currentMember;
     public RentalList currentList;
@@ -34,7 +34,7 @@ public class RentalController {
         currentMember = new Member("M001", "測試會員");
         currentList = new RentalList();
 
-        // ❌ 移除這行：rentalPage = new RentalPage();
+        // 移除這行：rentalPage = new RentalPage();
         // 因為現在 RentalPage 是 Spring 的控制器，它會自己把自己塞進來
     }
 
