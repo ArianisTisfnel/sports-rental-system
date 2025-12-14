@@ -179,7 +179,7 @@ public class RentalPage {
             rentalController.processCheckout();
         }
 
-        // 將狀態传遞給redirect的頁面
+        // 將狀態傳遞給redirect的頁面
         redirectAttributes.addFlashAttribute("message", tempMessage);
         if (showAuditModal) {
             redirectAttributes.addFlashAttribute("showAuditModal", true);
