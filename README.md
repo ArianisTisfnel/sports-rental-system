@@ -43,9 +43,9 @@ javac -version
 
 ## 安裝步驟
 
-### 步驟 1: 下載專案
+### 步驟 1: 下載專案；解壓縮後選擇資料夾；打開資料夾
 
-使用 Git 下載專案代碼：
+或使用 Git 下載專案代碼：
 
 ```bash
 git clone https://github.com/ArianisTisfnel/sports-rental-system.git
