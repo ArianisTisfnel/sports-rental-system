@@ -77,5 +77,51 @@
         </div>
     </div>
 </div>
+
+<script>
+    // 防止重複提交的機制
+    let isSubmitting = false;
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // 為所有表單添加防重複提交
+        document.querySelectorAll('form').forEach(function(form) {
+            form.addEventListener('submit', function(e) {
+                if (isSubmitting) {
+                    e.preventDefault();
+                    return false;
+                }
+                
+                isSubmitting = true;
+                
+                // 禁用提交按鈕並顯示載入狀態
+                const submitBtn = form.querySelector('button[type="submit"]');
+                if (submitBtn) {
+                    submitBtn.disabled = true;
+                    const originalText = submitBtn.innerHTML;
+                    
+                    if (submitBtn.classList.contains('btn-success') || submitBtn.classList.contains('btn-warning')) {
+                        // 結帳按鈕
+                        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> 處理中...';
+                    } else {
+                        // 其他按鈕
+                        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> 處理中';
+                    }
+                    
+                    // 如果10秒後還沒完成，重新啟用按鈕
+                    setTimeout(function() {
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = originalText;
+                        isSubmitting = false;
+                    }, 10000);
+                }
+            });
+        });
+
+        // 當頁面即將被刷新時，重置提交狀態
+        window.addEventListener('beforeunload', function() {
+            isSubmitting = false;
+        });
+    });
+</script>
 </body>
 </html>

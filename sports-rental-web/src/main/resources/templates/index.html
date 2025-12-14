@@ -19,7 +19,7 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2 class="m-0">🏀 校園體育器材租借系統</h2>
         <a href="/cart" class="btn btn-success btn-lg">
-            🛒 查看購物車 / 結帳
+            🛒 查看租借清單 / 結帳
         </a>
     </div>
 
@@ -112,13 +112,56 @@
     var serverMessage = /*[[${message}]]*/ null;
     var showDecision = /*[[${showDecisionModal}]]*/ false;
 
+    // 防止重複提交的機制
+    let isSubmitting = false;
+
     window.onload = function() {
-        if (showDecision) {
+        // 調試信息
+        console.log('DEBUG - serverMessage:', serverMessage);
+        console.log('DEBUG - showDecision:', showDecision);
+        
+        if (showDecision && showDecision === true) {
+            console.log('DEBUG - Showing decision modal');
             var myModal = new bootstrap.Modal(document.getElementById('decisionModal'));
             myModal.show();
         } else if (serverMessage && serverMessage.includes("錯誤")) {
             alert("❌ " + serverMessage);
+        } else if (serverMessage && serverMessage.includes("成功")) {
+            console.log('DEBUG - Success message received:', serverMessage);
+            // 顯示成功訊息但不彈出modal（因為showDecision應該為true）
         }
+
+        // 為所有表單添加防重複提交
+        document.querySelectorAll('form').forEach(function(form) {
+            form.addEventListener('submit', function(e) {
+                if (isSubmitting) {
+                    e.preventDefault();
+                    return false;
+                }
+                
+                isSubmitting = true;
+                
+                // 禁用提交按鈕並顯示載入狀態
+                const submitBtn = form.querySelector('button[type="submit"]');
+                if (submitBtn) {
+                    submitBtn.disabled = true;
+                    const originalText = submitBtn.innerHTML;
+                    submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> 處理中...';
+                    
+                    // 如果5秒後還沒完成，重新啟用按鈕
+                    setTimeout(function() {
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = originalText;
+                        isSubmitting = false;
+                    }, 5000);
+                }
+            });
+        });
+
+        // 當頁面即將被刷新時，重置提交狀態
+        window.addEventListener('beforeunload', function() {
+            isSubmitting = false;
+        });
     };
 
     function showDetails(button) {
