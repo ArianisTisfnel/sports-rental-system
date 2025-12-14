@@ -16,9 +16,8 @@ public class Equipment {
     }
 
     // 核心邏輯：檢查庫存
-    public Boolean isQuantityAvailable(Integer requestedQuantity) {
-        return availableStock >= requestedQuantity;
-    }
+
+    public Boolean isQuantityAvailable(Integer requestedQuantity) { return availableStock >= requestedQuantity; }
 
     // 核心邏輯：扣除庫存
     public void decreaseStock(Integer quantity) {
