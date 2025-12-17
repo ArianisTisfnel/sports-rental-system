@@ -23,6 +23,12 @@ public class RentalList {
         this.itemsSet = new HashSet<>();
     }
 
+    /**
+     * 將加器材到租借清單中
+     * 如果清單中已經存在此器材，則更新數量
+     * 否則，添加新品項
+     * @param item 需借品項
+     */
     public void addItem(RentalItem item) {
 
         String itemID = item.getEquipment().getEquipmentID();
@@ -50,6 +56,14 @@ public class RentalList {
         itemsSet.removeIf(item -> item.getEquipment().getEquipmentID().equals(equipmentID));
     }
 
+    /**
+     * 更新租借清單中某個器材的數量
+     * 如果 newQuantity 為 0 或更少，則移除該品項。
+     * 否則，更新該品項的數量
+     * 
+     * @param equipmentID 器材ID
+     * @param newQuantity 新的數量
+     */
     public void updateItem(String equipmentID, Integer newQuantity) {
         
         // 如果 newQuantity 為 0 或更少，則移除該品項。
@@ -96,7 +110,6 @@ public class RentalList {
     }
 
     public String getListID() { return listID; }
-
     public LocalDateTime getCreationDate() { return creationDate; }
 
     /**
