@@ -18,6 +18,5 @@ public class Member {
     
     // 新增歷史紀錄
     public void addRentalHistory(Order order) { rentalHistory.add(order); }
-    
     public List<Order> getRentalHistory() { return rentalHistory; }
 }
