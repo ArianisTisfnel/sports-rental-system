@@ -1,6 +1,6 @@
 # 體育器材租借系統 (Sports Equipment Rental System)
 
-一個基於Spring Boot開發的校園體育器材租借管理系統，提供直觀的Web界面來管理器材庫存和租借流程。
+一個基於Spring Boot開發的校園體育器材租借管理系統，提供直觀的Web界面來展示租借流程。
 
 ## 目錄
 
@@ -117,7 +117,7 @@ http://localhost:8080
 您將看到體育器材租借系統的主頁面，包含：
 - 器材目錄瀏覽
 - 購物車功能
-- 租借管理介面
+  
 
 ## 故障排除
 
@@ -165,6 +165,5 @@ mvnw.cmd clean compile
 
 ---
 
-**專案版本**: v0.0.1-SNAPSHOT  
-**更新日期**: 2025年12月14日  
+**更新日期**: 2025年12月16日  
 **Repository**: [GitHub - ArianisTisfnel/sports-rental-system](https://github.com/ArianisTisfnel/sports-rental-system)
