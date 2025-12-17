@@ -28,8 +28,10 @@ public class RentalController {
         equipmentInventory.put("E001", new Equipment("E001", "籃球", 20, 10));
         equipmentInventory.put("E002", new Equipment("E002", "排球", 15, 5));
         equipmentInventory.put("E003", new Equipment("E003", "羽毛球拍", 30, 15));
-        equipmentInventory.put("E004", new Equipment("E004", "桌球", 10, 5));
-        equipmentInventory.put("E005", new Equipment("E005", "網球拍", 25, 10));
+        equipmentInventory.put("E004", new Equipment("E004", "羽毛球", 10, 5));
+        equipmentInventory.put("E005", new Equipment("E003", "桌球拍", 30, 15));
+        equipmentInventory.put("E006", new Equipment("E004", "桌球", 10, 5));
+        equipmentInventory.put("E007", new Equipment("E005", "網球拍", 25, 10));
 
         currentMember = new Member("M001", "測試會員");
         currentList = new RentalList();
@@ -38,16 +40,26 @@ public class RentalController {
         // 因為現在 RentalPage 是 Spring 的控制器，它會自己把自己塞進來
     }
 
-    public void addItemRequest(String equipmentID, Integer quantity) {
+    /**
+     * 將加器材到租借清單中
+     * @param equipmentID 器材ID
+     * @param quantity 需借數量
+     * @throws NullPointerException 如果器材ID不存在
+     * @throws IllegalArgumentException 如果器材庫存不足
+     */
+    public void addItemRequest(String equipmentID, Integer quantity) throws NullPointerException, IllegalArgumentException
+    { 
         Equipment equipment = equipmentInventory.get(equipmentID);
         if (equipment == null) {
-            rentalPage.displayStatusMessage("錯誤：找不到器材 ID: " + equipmentID);
-            return;
+            final String STATUS_MESSAGE = "錯誤：找不到器材 ID: " + equipmentID;
+            rentalPage.displayStatusMessage(STATUS_MESSAGE);
+            throw new NullPointerException(STATUS_MESSAGE);
         }
 
         if (Boolean.FALSE.equals(equipment.isQuantityAvailable(quantity))) {
-            rentalPage.displayStatusMessage("錯誤：器材 '" + equipment.getName() + "' (ID: " + equipmentID + ") 庫存不足，目前可用: " + equipment.getAvailableStock());
-            return;
+            final String STATUS_MESSAGE = "錯誤：器材 '" + equipment.getName() + "' (ID: " + equipmentID + ") 庫存不足";
+            rentalPage.displayStatusMessage(STATUS_MESSAGE);
+            throw new IllegalArgumentException(STATUS_MESSAGE);
         }
 
         RentalItem newItem = new RentalItem(equipment, quantity);
@@ -71,6 +83,14 @@ public class RentalController {
         rentalPage.displayStatusMessage("已更新器材 ID: " + equipmentID + " 的數量為 " + newQuantity);
     }
 
+    /**
+     * 處理結帳流程。
+     * 如果租借清單是空的：顯示錯誤訊息。
+     * 如果任何一個品項的數量大於其對應器材的審計門檻：則顯示錯誤訊息；
+     * 否則，顯示 Audit Modal 讓使用者輸入審核理由。
+     * 如果 Web 版回傳 null，代表需要等待使用者輸入，先結束；
+     * 否則，核准訂單。
+     */
     public void processCheckout() {
         if (currentList.getItems().isEmpty()) {
             rentalPage.displayStatusMessage("錯誤：您的租借清單是空的，無法結帳。");
@@ -96,6 +116,12 @@ public class RentalController {
         }
     }
 
+    /**
+     * 核核訂單。
+     * 會將目前的租借清單轉換為訂單，並將其加入會員的歷史紀錄中。
+     * 並將器材的庫存減少對應的數量。
+     * 最後，清空目前的租借清單。
+     */
     public void confirmOrder() {
         Order newOrder = new Order(UUID.randomUUID().toString(), currentMember, currentList.getItemsSet(), "Approved", null);
         for (RentalItem item : newOrder.getLineItems()) {
@@ -106,6 +132,11 @@ public class RentalController {
         currentList.clearList();
     }
 
+    /**
+     * 核單核准
+     * @param auditReason 審計理由
+     * @see #confirmOrder()
+     */
     public void confirmOrder(String auditReason) {
         boolean approved = random.nextBoolean(); // 以亂數模擬管理員審核結果：50% 的機率通過；50% 的機率拒絕。
         String orderStatus = approved ? "Approved" : "Rejected";
