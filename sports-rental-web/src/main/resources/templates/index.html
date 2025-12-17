@@ -27,10 +27,12 @@
         <div class="col-md-3">
             <div class="sidebar">
                 <div class="sidebar-header">快速導航 (Quick Find)</div>
-                <a href="#E001">🏀 籃球</a>
-                <a href="#E002">🏐 排球</a>
-                <a href="#E003">🏸 羽球拍</a>
-                <a href="#E004">🏓 桌球拍</a>
+                <div th:if="${equipments} == null">目前無器材</div>
+                <th:block th:if="${equipments} != null">
+                          <a th:each="item : ${equipments}"
+                              th:href="${'#' + item.equipmentID}"
+                              th:text="${item.name}"></a>
+                </th:block>
             </div>
         </div>
 

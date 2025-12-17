@@ -6,7 +6,6 @@ public class Equipment {
     private Integer totalStock;
     private Integer availableStock;
     private Integer auditThreshold;
-
     public Equipment(String equipmentID, String name, Integer totalStock, Integer auditThreshold) {
         this.equipmentID = equipmentID;
         this.name = name;

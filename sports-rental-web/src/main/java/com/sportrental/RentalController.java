@@ -1,7 +1,7 @@
 package com.sportrental;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
@@ -23,15 +23,16 @@ public class RentalController {
     }
 
     public void initSystem() {
-        equipmentInventory = new HashMap<>();
-        // 載入靜態器材庫存資料
-        equipmentInventory.put("E001", new Equipment("E001", "籃球", 20, 10));
-        equipmentInventory.put("E002", new Equipment("E002", "排球", 15, 5));
-        equipmentInventory.put("E003", new Equipment("E003", "羽毛球拍", 30, 15));
-        equipmentInventory.put("E004", new Equipment("E004", "羽毛球", 10, 5));
-        equipmentInventory.put("E005", new Equipment("E003", "桌球拍", 30, 15));
-        equipmentInventory.put("E006", new Equipment("E004", "桌球", 10, 5));
-        equipmentInventory.put("E007", new Equipment("E005", "網球拍", 25, 10));
+        // 使用 LinkedHashMap 保留插入順序，讓前端導航順序穩定
+        equipmentInventory = new LinkedHashMap<>();
+        // 載入靜態器材庫存資料：將 emoji 加入 name，模板只需使用 name 即可
+        equipmentInventory.put("E001", new Equipment("E001", "🏀 籃球", 20, 10));
+        equipmentInventory.put("E002", new Equipment("E002", "🏐 排球", 15, 5));
+        equipmentInventory.put("E003", new Equipment("E003", "🏸 羽毛球拍", 30, 15));
+        equipmentInventory.put("E004", new Equipment("E004", "♟️ 羽毛球", 10, 5));
+        equipmentInventory.put("E005", new Equipment("E005", "🏓 桌球拍", 30, 15));
+        equipmentInventory.put("E006", new Equipment("E006", "🟠 桌球", 10, 5));
+        equipmentInventory.put("E007", new Equipment("E007", "🎾 網球拍", 25, 10));
 
         currentMember = new Member("M001", "測試會員");
         currentList = new RentalList();
